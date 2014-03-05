@@ -35,7 +35,7 @@ import qualified Data.Sequence as S
 import Data.Word (Word32)
 import qualified Graphics.UI.Gtk as Gtk
 import HFlags
-import Pipes (Producer, yield, (>->), await, Consumer, Pipe, lift, runEffect)
+import Pipes
 import System.Environment
 import System.IO
 import System.Posix.Signals
@@ -147,9 +147,7 @@ replaceTMVar var v = tryTakeTMVar var >> putTMVar var v
 
 
 execU :: Monad m => m () -> Pipe a a m r
-execU mOp = forever $ do
-  lift mOp
-  await >>= yield
+execU mOp = (lift mOp >> await) >~ cat
 
 --------------------------------------------------------------------------------
 -- Status Icon handling
